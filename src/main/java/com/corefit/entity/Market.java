@@ -2,13 +2,11 @@ package com.corefit.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@AllArgsConstructor
 @Table(name = "markets")
 public class Market {
     @Id

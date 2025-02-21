@@ -1,12 +1,9 @@
 package com.corefit.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
 
 @Entity
-@AllArgsConstructor
 @Table(name = "products")
 public class Product {
     @Id

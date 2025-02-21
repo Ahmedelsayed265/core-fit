@@ -5,7 +5,6 @@ import com.corefit.enums.Gender;
 import com.corefit.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

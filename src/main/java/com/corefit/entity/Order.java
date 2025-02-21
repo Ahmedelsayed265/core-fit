@@ -3,14 +3,12 @@ package com.corefit.entity;
 import com.corefit.enums.OrderStatus;
 import com.corefit.enums.PaymentMethod;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
-@AllArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
