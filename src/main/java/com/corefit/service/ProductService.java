@@ -59,15 +59,8 @@ public class ProductService {
 
         List<String> imageUrls = uploadImages(images);
 
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .description(productRequest.getDescription())
-                .offer(productRequest.getOffer())
-                .price(productRequest.getPrice())
-                .market(market)
-                .subCategory(subCategory)
-                .images(imageUrls)
-                .build();
+        Product product = new Product(productRequest.getName(), productRequest.getDescription(), productRequest.getPrice()
+                , productRequest.getOffer(), market, subCategory, imageUrls);
 
         productRepo.save(product);
 
@@ -121,17 +114,16 @@ public class ProductService {
 
     // Helper methods
     private ProductDto mapToDto(Product product) {
-        return ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .offer(product.getOffer())
-                .subCategoryName(product.getSubCategory().getName())
-                .marketName(product.getMarket().getName())
-                .images(product.getImages())
-                .isHidden(product.isHidden())
-                .build();
+        return new ProductDto(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getOffer(),
+                product.getSubCategory().getName(),
+                product.getMarket().getName(),
+                product.getImages(),
+                product.isHidden());
     }
 
     private List<String> uploadImages(List<MultipartFile> images) {

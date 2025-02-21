@@ -8,11 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "subCategories")
 public class SubCategory {
     @Id
@@ -28,4 +24,41 @@ public class SubCategory {
     @OneToMany(mappedBy = "subCategory", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Product> products = new HashSet<>();
+
+
+    /// //////////////
+    public SubCategory() {
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Market getMarket() {
+        return market;
+    }
+
+    public void setMarket(Market market) {
+        this.market = market;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
 }
