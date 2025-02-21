@@ -10,11 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "rates", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "market_id"})})
 public class Rate {
     @Id
@@ -38,4 +34,62 @@ public class Rate {
     @JoinColumn(name = "market_id", nullable = false)
     private Market market;
 
+/// //////////////
+    public Rate() {
+    }
+
+    public Rate(String comment, int rate, Market market, User user) {
+        this.comment = comment;
+        this.rate = rate;
+        this.market = market;
+        this.user = user;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public int getRate() {
+        return rate;
+    }
+
+    public void setRate(int rate) {
+        this.rate = rate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Market getMarket() {
+        return market;
+    }
+
+    public void setMarket(Market market) {
+        this.market = market;
+    }
 }
