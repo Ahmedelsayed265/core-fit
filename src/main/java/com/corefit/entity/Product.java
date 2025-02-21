@@ -31,7 +31,6 @@ public class Product {
 
     private boolean isHidden = false;
 
-    /// //////////////
     public Product() {
     }
 
