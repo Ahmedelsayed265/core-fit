@@ -24,7 +24,6 @@ public class SubCategory {
     private Set<Product> products = new HashSet<>();
 
 
-    /// //////////////
     public SubCategory() {
     }
 

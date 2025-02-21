@@ -29,7 +29,6 @@ public class Rate {
     @JoinColumn(name = "market_id", nullable = false)
     private Market market;
 
-/// //////////////
     public Rate() {
     }
 
