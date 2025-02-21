@@ -2,10 +2,9 @@ package com.corefit.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+
 
 @Entity
-@AllArgsConstructor
 @Table(name = "cart_items")
 public class CartItem {
     @Id

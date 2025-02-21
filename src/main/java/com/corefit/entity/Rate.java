@@ -1,16 +1,11 @@
 package com.corefit.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@AllArgsConstructor
 @Table(name = "rates", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "market_id"})})
 public class Rate {
     @Id
