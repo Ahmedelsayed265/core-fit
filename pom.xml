@@ -13,6 +13,7 @@
     <groupId>com.corefit</groupId>
     <artifactId>core-fit</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>core-fit</name>
     <description>core-fit</description>
     <url/>
