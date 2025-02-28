@@ -153,19 +153,13 @@ public class AuthService {
             }
         }
 
-        return User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phone(request.getPhone())
-                .gender(Gender.valueOf(request.getGender()))
-                .birthDate(request.getBirthDate())
-                .city(city)
-                .governorate(governorateService.findById(city.getGovernorate().getId()))
-                .type(UserType.valueOf(request.getType()))
-                .imageUrl(imagePath)
-                .build();
+        return new User(request.getEmail(), request.getPhone(), passwordEncoder.encode(request.getPassword())
+                , request.getUsername(), request.getBirthDate()
+                , governorateService.findById(city.getGovernorate().getId()), city, Gender.valueOf(request.getGender())
+                , UserType.valueOf(request.getType()), imagePath);
+
     }
+
 
     private void updateUser(RegisterRequest request, User user) {
         if (!user.getEmail().equals(request.getEmail()) && userRepository.findByEmail(request.getEmail()).isPresent()) {

@@ -1,6 +1,5 @@
 package com.corefit.service;
 
-import com.corefit.config.JwtUtil;
 import com.corefit.dto.GeneralResponse;
 import com.corefit.dto.MarketRequest;
 import com.corefit.entity.Category;
@@ -20,9 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class MarketService {

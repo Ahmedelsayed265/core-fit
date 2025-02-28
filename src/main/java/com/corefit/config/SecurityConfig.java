@@ -71,7 +71,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("*"));
+       // configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+       // configuration.setAllowedOrigins(List.of("https://core-fit-production.up.railway.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -81,6 +83,24 @@ public class SecurityConfig {
         return source;
     }
 
+//    public static class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+//        @Override
+//        public void commence(HttpServletRequest request, HttpServletResponse response,
+//                             org.springframework.security.core.AuthenticationException authException)
+//                throws IOException, ServletException {
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("UTF-8");
+//
+//            if (authException != null) {
+//                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//                response.getWriter().write("{\"message\": \"Unauthorized access\"}");
+//            } else {
+//                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//                response.getWriter().write("{\"message\": \"Internal server error occurred\"}");
+//            }
+//        }
+//    }
+
     public static class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
         @Override
         public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -88,14 +108,9 @@ public class SecurityConfig {
                 throws IOException, ServletException {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-
-            if (authException != null) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("{\"message\": \"Unauthorized access\"}");
-            } else {
-                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-                response.getWriter().write("{\"message\": \"Internal server error occurred\"}");
-            }
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("{\"message\": \"Unauthorized access\", \"error\": \"" + authException.getMessage() + "\"}");
         }
     }
+
 }
