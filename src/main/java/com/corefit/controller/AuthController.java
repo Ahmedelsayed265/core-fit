@@ -46,15 +46,20 @@ public class AuthController {
     }
 
 
+//    @PostMapping("/login")
+//    public ResponseEntity<GeneralResponse<?>> login(@RequestBody LoginRequest request) {
+//        try {
+//            GeneralResponse<?> response = authService.login(request);
+//            return ResponseEntity.status(HttpStatus.OK).body(response);
+//        } catch (GeneralException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new GeneralResponse<>(e.getMessage()));
+//        }
+//    }
+
     @PostMapping("/login")
     public ResponseEntity<GeneralResponse<?>> login(@RequestBody LoginRequest request) {
-        try {
-            GeneralResponse<?> response = authService.login(request);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (GeneralException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new GeneralResponse<>(e.getMessage()));
-        }
+        return ResponseEntity.ok(new GeneralResponse<>("This link is working"));
     }
 
     @PostMapping("/forget_password")
