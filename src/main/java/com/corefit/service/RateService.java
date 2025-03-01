@@ -54,12 +54,7 @@ public class RateService {
         User user = userRepo.findById(request.getUserId())
                 .orElseThrow(() -> new GeneralException("User not found"));
 
-        Rate rate = Rate.builder()
-                .comment(request.getComment())
-                .rate(Math.min(5, Math.max(0, request.getRate()))) // rate is between 0 , 5
-                .market(market)
-                .user(user)
-                .build();
+        Rate rate = new Rate(request.getComment(),Math.min(5, Math.max(0, request.getRate())),market,user);
 
         rate = rateRepo.save(rate);
 

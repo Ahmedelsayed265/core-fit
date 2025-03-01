@@ -15,6 +15,9 @@ public class UserDto {
     private Gender gender;
     private String imageUrl;
 
+    public UserDto() {
+    }
+
     public UserDto(Long id, String username, String email, String phone, LocalDate birthDate, String governorate, String city, Gender gender, String imageUrl) {
         this.id = id;
         this.username = username;
