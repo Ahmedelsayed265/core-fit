@@ -78,4 +78,4 @@ jobs:
         version_label: ${{ env.IMAGE_TAG }}
         bucket_name: elasticbeanstalk-eu-west-1-890742564852
         bucket_key: ${{ env.IMAGE_TAG }}.zip
-
+        
