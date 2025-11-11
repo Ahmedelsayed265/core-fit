@@ -48,3 +48,7 @@ terraform.tfstate.backup
 txt
 cleanup_aws_resources.sh
 tfplan
+
+# Beanstalk key
+beanstalk-key
+beanstalk-key.pub

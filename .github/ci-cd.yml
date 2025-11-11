@@ -1,0 +1,81 @@
+name: CI/CD Docker to ECR + Beanstalk
+
+on:
+  push:
+    branches:
+      - dev  # merge trigger
+
+jobs:
+  CI(build_and_push):
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Log in to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registry-type: public
+
+    - name: Build, tag, and push Docker image
+      env:
+        ECR_REGISTRY: public.ecr.aws/u6h5x3y1
+        IMAGE_NAME: corefit/devrepo
+      run: |
+        IMAGE_TAG=dev-${GITHUB_SHA::7}
+        docker build -t $IMAGE_NAME:$IMAGE_TAG .
+        docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+
+  CD(deploy):
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Generate Dockerrun.aws.json
+      run: |
+        cat > Dockerrun.aws.json <<EOL
+        {
+          "AWSEBDockerrunVersion": "1",
+          "Image": {
+            "Name": "public.ecr.aws/u6h5x3y1/corefit/devrepo:${{ env.IMAGE_TAG }}",
+            "Update": "true"
+          },
+          "Ports": [
+            {
+              "ContainerPort": "8000"
+            }
+          ],
+          "Logging": "/var/log/nginx"
+        }
+        EOL
+
+    - name: Package app for Beanstalk
+      run: zip -r ${{ env.IMAGE_TAG }}.zip Dockerrun.aws.json
+
+    - name: Upload ZIP to S3
+      uses: jakejarvis/s3-sync-action@v1
+      with:
+        args: ${{ env.IMAGE_TAG }}.zip s3://elasticbeanstalk-eu-west-1-890742564852/${{ env.IMAGE_TAG }}.zip
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to Elastic Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v22
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: ${{ secrets.AWS_REGION }}
+        application_name: ${{ secrets.EB_APP_NAME }}
+        environment_name: ${{ secrets.EB_ENV_NAME }}
+        version_label: ${{ env.IMAGE_TAG }}
+        bucket_name: elasticbeanstalk-eu-west-1-890742564852
+        bucket_key: ${{ env.IMAGE_TAG }}.zip
+
