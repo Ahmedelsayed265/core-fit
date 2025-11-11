@@ -45,6 +45,9 @@ jobs:
       - name: Package and upload Dockerrun to S3 Bucket
         run: bash scripts/package_to_s3_bucket.sh
 
+      - name: Shorten commit SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
@@ -53,6 +56,6 @@ jobs:
           region: ${{ secrets.AWS_REGION }}
           application_name: ${{ secrets.EB_APP_NAME }}
           environment_name: ${{ secrets.EB_ENV_NAME }}
-          version_label: ${{ env.IMAGE_TAG }}
-          deployment_package: dev-${{ github.sha }}.zip
+          version_label: dev-${{ env.SHORT_SHA }}
           existing_bucket_name: elasticbeanstalk-eu-west-1-890742564852
+          deployment_package: dev-${{ env.SHORT_SHA }}.zip
