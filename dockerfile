@@ -1,34 +1,44 @@
-# Build stage
+# ============================
+#       Build Stage
+# ============================
 FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and configuration
+# Copy Maven wrapper & config files
 COPY mvnw pom.xml ./
 COPY .mvn .mvn
 
 # Fix permissions
 RUN chmod +x mvnw
 
-# Download dependencies
-RUN ./mvnw dependency:go-offline
+# ----------------------------
+# Step 1: Download dependencies only
+# ----------------------------
+# This creates cache layer → faster builds
+RUN ./mvnw -B -DskipTests dependency:resolve dependency:resolve-plugins
 
-# Copy source code
+# ----------------------------
+# Step 2: Copy source code
+# ----------------------------
 COPY src ./src
 
-# Build application
-RUN ./mvnw package -DskipTests
+# ----------------------------
+# Step 3: Build Application
+# ----------------------------
+RUN ./mvnw -B -DskipTests package
 
-# Runtime stage
+
+# ============================
+#       Runtime Stage
+# ============================
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy built JAR from builder stage
-COPY --from=builder /app/target/core-fit-0.0.1-SNAPSHOT.jar .
+# Copy built JAR
+COPY --from=builder /app/target/core-fit-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port
 EXPOSE 8000
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "core-fit-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
