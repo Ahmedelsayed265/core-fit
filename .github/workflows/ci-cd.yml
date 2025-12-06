@@ -1,4 +1,4 @@
-name: CI/CD Docker to ECR + Beanstalk
+name: CI/CD Docker to ECR + EC2 Deploy
 
 on:
   push:
@@ -18,8 +18,10 @@ jobs:
           echo "IMAGE_TAG=dev-${GITHUB_SHA::7}" >> $GITHUB_ENV
           echo "ECR_REGISTRY=public.ecr.aws/u6h5x3y1" >> $GITHUB_ENV
           echo "IMAGE_NAME=corefit/devrepo" >> $GITHUB_ENV
-          echo "BUCKET_NAME=elasticbeanstalk-eu-west-1-890742564852" >> $GITHUB_ENV
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "EC2_INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}" >> $GITHUB_ENV
+          echo "EC2_USER=ec2-user" >> $GITHUB_ENV
+          echo "EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -29,10 +31,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Log in to Amazon ECR
-        env:
-          AWS_REGION: us-east-1
         uses: aws-actions/amazon-ecr-login@v2
-
         with:
           registry-type: public
 
@@ -42,20 +41,29 @@ jobs:
           docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
           docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
 
-      - name: Package and upload Dockerrun to S3 Bucket
-        run: bash scripts/package_to_s3_bucket.sh
+      - name: Generate temporary SSH key
+        run: |
+          ssh-keygen -t rsa -b 2048 -f temp_key -N ""
+          echo "TEMP_KEY=temp_key" >> $GITHUB_ENV
 
-      - name: Shorten commit SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Send temporary SSH public key to EC2 via Instance Connect
+        run: |
+          aws ec2-instance-connect send-ssh-public-key \
+            --instance-id $EC2_INSTANCE_ID \
+            --availability-zone $(aws ec2 describe-instances --instance-ids $EC2_INSTANCE_ID --query "Reservations[0].Instances[0].Placement.AvailabilityZone" --output text) \
+            --instance-os-user $EC2_USER \
+            --ssh-public-key file://$TEMP_KEY.pub
 
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v22
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: ${{ secrets.AWS_REGION }}
-          application_name: ${{ secrets.EB_APP_NAME }}
-          environment_name: ${{ secrets.EB_ENV_NAME }}
-          version_label: dev-${{ env.SHORT_SHA }}
-          existing_bucket_name: elasticbeanstalk-eu-west-1-890742564852
-          deployment_package: dev-${{ env.SHORT_SHA }}.zip
+      - name: Deploy Docker container on EC2
+        run: |
+          chmod 600 $TEMP_KEY
+          ssh -i $TEMP_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
+            docker pull public.ecr.aws/u6h5x3y1/corefit/devrepo:${IMAGE_TAG}
+            docker stop corefit-app || true
+            docker rm corefit-app || true
+            docker run -d --env-file /opt/corefit/app.env --name corefit-app public.ecr.aws/u6h5x3y1/corefit/devrepo:${IMAGE_TAG}
+          EOF
+
+      - name: Clean up temporary key
+        run: |
+          rm -f temp_key temp_key.pub
