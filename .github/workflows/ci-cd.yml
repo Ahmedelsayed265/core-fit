@@ -63,7 +63,8 @@ jobs:
             docker pull public.ecr.aws/u6h5x3y1/corefit/devrepo:${IMAGE_TAG}
             docker stop corefit-app || true
             docker rm corefit-app || true
-            docker run -d --env-file /opt/corefit/app.env --name corefit-app public.ecr.aws/u6h5x3y1/corefit/devrepo:${IMAGE_TAG}
+            docker run -d --env-file /opt/corefit/app.env --name corefit-app --restart unless-stopped public.ecr.aws/u6h5x3y1/corefit/devrepo:${IMAGE_TAG}
+            docker image prune -a -f || true
           EOF
 
       - name: Clean up temporary key
